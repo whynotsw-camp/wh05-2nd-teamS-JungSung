@@ -1,4 +1,4 @@
-# 📊 Feple 상담사 대시보드
+# 📊 Feple(Feedback + Platform) 상담사 대시보드
 
 LG U+ 브랜드 테마에 맞춰 제작된 **상담사 성과 피드백 대시보드**입니다.  
 React + Vite + TailwindCSS 기반이며, GitHub Actions로 자동 배포됩니다.
