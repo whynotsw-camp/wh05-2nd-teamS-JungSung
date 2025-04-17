@@ -1,7 +1,7 @@
 const ranks = [
   { name: "김상담", score: 95 },
   { name: "이상담", score: 92 },
-  { name: "노준석", score: 87 }, // ← 본인 강조
+  { name: "노상담", score: 87 }, // ← 본인 강조
   { name: "최상담", score: 85 },
   { name: "박상담", score: 83 },
 ];
@@ -12,7 +12,7 @@ export default function Leaderboard() {
       <h2 className="text-xl font-bold mb-4 text-primary">팀 순위 Top 5</h2>
       <ul className="divide-y divide-border">
         {ranks.map((user, index) => {
-          const isMe = user.name === "노준석";
+          const isMe = user.name === "노상담";
           return (
             <li
               key={index}
