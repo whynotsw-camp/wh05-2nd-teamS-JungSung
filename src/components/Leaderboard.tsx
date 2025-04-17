@@ -1,9 +1,11 @@
+import CountUp from "react-countup";
+
 const ranks = [
-  { name: "김상담", score: 95 },
-  { name: "이상담", score: 92 },
-  { name: "노상담", score: 87 }, // ← 본인 강조
-  { name: "최상담", score: 85 },
-  { name: "박상담", score: 83 },
+  { name: "오정우", score: 95 },
+  { name: "김기훈", score: 92 },
+  { name: "오현서", score: 87 },
+  { name: "노준석", score: 85 }, // ← 본인 강조
+  { name: "김상담", score: 83 },
 ];
 
 export default function Leaderboard() {
@@ -12,7 +14,7 @@ export default function Leaderboard() {
       <h2 className="text-xl font-bold mb-4 text-primary">팀 순위 Top 5</h2>
       <ul className="divide-y divide-border">
         {ranks.map((user, index) => {
-          const isMe = user.name === "노상담";
+          const isMe = user.name === "오정우";
           return (
             <li
               key={index}
@@ -26,7 +28,9 @@ export default function Leaderboard() {
                 <span className="font-medium mr-1">{index + 1}.</span>{" "}
                 {user.name}
               </span>
-              <span className="text-sm font-medium">{user.score}점</span>
+              <span className="text-sm font-medium">
+                <CountUp end={user.score} duration={1.2} suffix="점" />
+              </span>
             </li>
           );
         })}

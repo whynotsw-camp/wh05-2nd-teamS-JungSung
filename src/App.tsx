@@ -22,16 +22,6 @@ export default function App() {
       <div className="mb-10">
         <FeedbackTabs />
       </div>
-
-      {/* 시각화 영역 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        <ScoreLineChart />
-        <TypePieChart />
-      </div>
-
-      <div className="mb-10">
-        <Leaderboard />
-      </div>
     </div>
   );
 }

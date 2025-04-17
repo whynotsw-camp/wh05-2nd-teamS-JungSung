@@ -11,8 +11,8 @@ import {
 const data = [
   { week: "3주 전", score: 80 },
   { week: "2주 전", score: 83 },
-  { week: "지난주", score: 86 },
-  { week: "이번주", score: 87 },
+  { week: "지난 주", score: 86 },
+  { week: "이번 주", score: 87 },
 ];
 
 export default function ScoreLineChart() {
