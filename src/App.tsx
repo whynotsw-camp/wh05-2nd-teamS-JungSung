@@ -1,7 +1,4 @@
 import OverviewCard from "./components/OverviewCard";
-import ScoreLineChart from "./components/ScoreLineChart";
-import TypePieChart from "./components/TypePieChart";
-import Leaderboard from "./components/Leaderboard";
 import FeedbackTabs from "./components/FeedbackTabs";
 
 export default function App() {
