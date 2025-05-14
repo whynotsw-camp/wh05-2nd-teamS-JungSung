@@ -93,7 +93,7 @@ export function useDashboardData() {
           : "아직 대시보드에 표시할 상담이 없어요",
       },
       {
-        label: "평균 감정 점수는",
+        label: "상담사님의 평균 감정 점수는",
         value: !isNaN(avgSent)
           ? `${avgSent.toFixed(2)}점이에요`
           : "아직 계산할 데이터가 없어요",
@@ -111,22 +111,23 @@ export function useDashboardData() {
           : "아직 계산할 데이터가 없어요",
       },
       {
-        label: "공감 표현 비율은",
+        label: "상담사님의 공감 표현 비율은",
         value: !isNaN(avgEmpathy)
           ? `${(avgEmpathy * 100).toFixed(1)}%나 하셨네요!`
           : "아직 계산할 데이터가 없어요",
       },
       {
-        label: "평균 침묵 비율은",
+        label: "상담사님의 평균 침묵 비율은",
         value: !isNaN(avgSilence)
           ? `${(avgSilence * 100).toFixed(1)}%이에요`
           : "아직 데이터가 없어요",
       },
       {
-        label: "평균 발화 속도는",
-        value: !isNaN(avgSpeed)
-          ? `${avgSpeed.toFixed(2)} WPM이에요`
-          : "아직 데이터가 없어요",
+        label: "상담사님의 평균 발화 속도는",
+        value:
+          avgSpeed !== 0 || !isNaN(avgSpeed)
+            ? `${avgSpeed.toFixed(2)} WPM이에요`
+            : "아직 데이터가 없어요",
       },
     ],
     [total, avgSent, avgScript, conflictRate, avgEmpathy, avgSilence, avgSpeed]

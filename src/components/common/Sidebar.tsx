@@ -1,13 +1,22 @@
+// src/components/common/Sidebar.tsx
+import React from "react";
+import { Link } from "react-router-dom";
 import {
   ChartBarIcon,
   ChatBubbleLeftRightIcon,
   DocumentTextIcon,
 } from "@heroicons/react/24/outline";
 
-const navItems = [
-  { id: "dashboard", label: "대시보드", icon: ChartBarIcon },
-  { id: "voc", label: "VOC 분석", icon: ChatBubbleLeftRightIcon },
-  { id: "report", label: "리포트", icon: DocumentTextIcon },
+interface NavItem {
+  to: string;
+  label: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+}
+
+const navItems: NavItem[] = [
+  { to: "/", label: "대시보드", icon: ChartBarIcon },
+  { to: "/sessions", label: "상담 주요 내용", icon: ChatBubbleLeftRightIcon },
+  { to: "/report", label: "리포트", icon: DocumentTextIcon },
 ];
 
 interface SidebarProps {
@@ -24,14 +33,14 @@ export function Sidebar({ isOpen }: SidebarProps) {
       <nav className="mt-4">
         <ul>
           {navItems.map((item) => (
-            <li key={item.id}>
-              <a
-                href={`#${item.id}`}
+            <li key={item.to}>
+              <Link
+                to={item.to}
                 className="flex items-center px-4 py-2 hover:bg-gray-100"
               >
                 <item.icon className="w-5 h-5 text-uplus-navy-alt mr-3" />
                 <span className="font-text text-uplus-navy">{item.label}</span>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
