@@ -81,7 +81,7 @@ export default function SessionCard({ session }: SessionCardProps) {
       )}
 
       {/* 대화 내용 */}
-      <div className="border-t pt-4 max-h-64 overflow-y-auto space-y-4">
+      <div className="border-t pt-4 max-h-96 overflow-y-auto space-y-4">
         {session.asr_segments.map((seg, idx) => {
           const isAgent = seg.speaker === "상담사";
           return (
