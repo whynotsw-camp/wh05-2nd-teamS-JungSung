@@ -72,7 +72,7 @@ export default function Sessions() {
         <div className="relative w-full md:w-1/2">
           <input
             type="text"
-            placeholder="확인할 상담의 ID를 입력해주세요"
+            placeholder="확인할 상담의 ID(40001~44017)를 입력해주세요"
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-uplus-magenta"
             value={searchTerm}
             onChange={(e) => {
