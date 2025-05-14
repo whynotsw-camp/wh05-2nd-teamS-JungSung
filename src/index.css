@@ -1,8 +1,35 @@
+/* 1) @font-face 로 브랜드 폰트 등록 */
+@font-face {
+  font-family: "LGEIHeadline";
+  src: url("/fonts/LGEIHeadlineTTF-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "LGEIHeadline";
+  src: url("/fonts/LGEIHeadlineTTF-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "LGEIText";
+  src: url("/fonts/LGEITextTTF-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "LGEIText";
+  src: url("/fonts/LGEITextTTF-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  @apply bg-secondary text-accent font-sans;
-  font-family: "Inter", sans-serif;
+  font-family: "LGEIText", sans-serif;
+  background-color: #f9fafb;
+  color: #1f2937;
 }
