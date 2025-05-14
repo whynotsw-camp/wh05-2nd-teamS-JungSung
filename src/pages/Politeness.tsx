@@ -85,7 +85,7 @@ export default function PolitenessPage() {
               fill="#cc338b"
               fillOpacity={0.5}
               isAnimationActive
-              animationDuration={800}
+              animationDuration={500}
             />
           </RadarChart>
         </ResponsiveContainer>
