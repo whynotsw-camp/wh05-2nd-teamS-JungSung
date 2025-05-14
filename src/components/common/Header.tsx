@@ -1,13 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
 import logoSvg from "/images/logo.svg";
-import {
-  ArrowDownTrayIcon,
-  ChevronDownIcon,
-  Bars3Icon,
-} from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon, Bars3Icon } from "@heroicons/react/24/outline";
 import { AnimatePresence, motion } from "framer-motion";
 
 const dateOptions = ["오늘", "이번 주", "이번 달"];
@@ -52,6 +48,7 @@ export function Header({ onDateChange, onMenuToggle, printRef }: HeaderProps) {
       windowHeight: h,
       scrollX: -window.scrollX,
       scrollY: -window.scrollY,
+      useCORS: true,
     });
     const img = canvas.toDataURL("image/png");
     const pdf = new jsPDF({
