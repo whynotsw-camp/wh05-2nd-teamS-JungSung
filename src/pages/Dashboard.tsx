@@ -1,6 +1,6 @@
 import KpiGrid from "../components/KPIGrid";
 import { PieDistribution } from "../components/PieDistribution";
-import TopKeywords from "../components/TopKeywords";
+// import TopKeywords from "../components/TopKeywords";
 import { useDashboardData } from "../hooks/useDashboardData";
 
 export default function Dashboard() {
@@ -31,9 +31,6 @@ export default function Dashboard() {
           colors={COLORS}
         />
       </div>
-
-      {/* 3. Top 5 키워드 */}
-      <TopKeywords items={topNouns} />
     </div>
   );
 }

@@ -1,4 +1,3 @@
-// src/hooks/useDashboardData.ts
 import { useState, useEffect, useMemo } from "react";
 import Papa from "papaparse";
 import rawData from "../data/text_features_all_training.csv?raw";
@@ -133,7 +132,7 @@ export function useDashboardData() {
     [total, avgSent, avgScript, conflictRate, avgEmpathy, avgSilence, avgSpeed]
   );
 
-  // Pie 데이터 (건수 > 100 필터)
+  // Pie 데이터 (건수 >100 필터)
   const midData: PieDatum[] = useMemo(() => {
     const cnt: Record<string, number> = {};
     data.forEach((r) => {

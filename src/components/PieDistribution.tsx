@@ -1,4 +1,12 @@
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+import React from "react";
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+} from "recharts";
 import { PieDatum } from "../hooks/useDashboardData";
 
 interface PieDistributionProps {
@@ -8,7 +16,32 @@ interface PieDistributionProps {
 }
 
 export function PieDistribution({ title, data, colors }: PieDistributionProps) {
-  const renderLabel = (entry: any) => `${entry.name} (${entry.value}건)`;
+  // 기본 레이블을 차트 외곽에 배치
+  const renderCustomizedLabel = ({
+    cx,
+    cy,
+    midAngle,
+    outerRadius,
+    payload,
+    value,
+  }: any) => {
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius + 20;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="#555"
+        className="text-xs font-medium"
+        textAnchor={x > cx ? "start" : "end"}
+        dominantBaseline="central"
+      >
+        {`${payload.name} (${value}건)`}
+      </text>
+    );
+  };
 
   return (
     <div className="bg-white rounded-xl p-5 shadow">
@@ -17,16 +50,19 @@ export function PieDistribution({ title, data, colors }: PieDistributionProps) {
         <PieChart>
           <Pie
             data={data}
-            dataKey="value"
-            nameKey="name"
             cx="50%"
             cy="50%"
+            innerRadius={60}
             outerRadius={80}
-            label={renderLabel}
+            dataKey="value"
+            nameKey="name"
+            label={renderCustomizedLabel}
             labelLine={false}
+            isAnimationActive={false}
+            cursor="pointer"
           >
             {data.map((_, idx) => (
-              <Cell key={idx} fill={colors[idx % colors.length]} />
+              <Cell key={`cell-${idx}`} fill={colors[idx % colors.length]} />
             ))}
           </Pie>
           <Tooltip formatter={(v: number) => `${v}건`} />

@@ -13,7 +13,7 @@ export default function Layout({ children }: LayoutProps) {
     <div className="min-h-screen flex bg-gray-50">
       <Header onMenuToggle={() => setSidebarOpen((open) => !open)} />
       <Sidebar isOpen={sidebarOpen} />
-      <main className="flex-1 p-6 pt-24 md:pl-64">{children}</main>
+      <main className="flex-1 p-4 pt-16 md:pl-64">{children}</main>
     </div>
   );
 }
