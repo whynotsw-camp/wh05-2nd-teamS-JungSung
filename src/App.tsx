@@ -1,21 +1,16 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/common/Layout";
+import Dashboard from "./pages/Dashboard";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Layout>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <div className="flex items-center justify-center h-full text-uplus-navy font-text">
-                대시보드 콘텐츠 영역
-              </div>
-            }
-          />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="*" element={<Dashboard />} />
         </Routes>
       </Layout>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
