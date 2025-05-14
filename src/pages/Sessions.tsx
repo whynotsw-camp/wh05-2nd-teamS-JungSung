@@ -1,3 +1,4 @@
+// src/pages/Sessions.tsx
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useSessionData } from "../hooks/useSessionData";
 import SessionCard from "../components/SessionCard";
@@ -18,7 +19,7 @@ export default function Sessions() {
     }
   }, [loading, sessions]);
 
-  // 검색어 기반 필터링: session_id를 문자열로 변환해 검색
+  // 검색어 기반 필터링
   const filteredSessions = useMemo(() => {
     if (!searchTerm.trim()) return [];
     return sessions.filter((s) =>
@@ -26,7 +27,7 @@ export default function Sessions() {
     );
   }, [sessions, searchTerm]);
 
-  // 세션 선택 핸들러
+  // 선택 핸들러
   const handleSelect = useCallback((session: (typeof sessions)[0]) => {
     setSelectedSession(session);
     setSearchTerm("");
@@ -57,7 +58,12 @@ export default function Sessions() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <motion.div
+      className="p-6 space-y-4"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       {/* 세션 검색 & 선택 */}
       <div>
         <h3 className="text-base font-medium text-gray-700 mb-2">
@@ -125,6 +131,6 @@ export default function Sessions() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
