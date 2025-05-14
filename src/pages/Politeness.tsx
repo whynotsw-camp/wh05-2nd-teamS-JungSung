@@ -50,7 +50,7 @@ export default function PolitenessPage() {
         className="text-base md:text-lg font-semibold text-uplus-magenta"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.4 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
       >
         상담사님의 친절도를 분석해봤어요 ☺️
       </motion.h2>
@@ -60,7 +60,7 @@ export default function PolitenessPage() {
         className="w-full h-96 bg-white rounded-2xl shadow-lg p-4"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.3, duration: 0.4 }}
+        transition={{ delay: 0.3, duration: 0.3 }}
       >
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="85%" data={data}>
