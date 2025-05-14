@@ -108,7 +108,7 @@ export function useDashboardData() {
       {
         label: "상담사님의 평균 감정 점수는",
         value: !isNaN(avgSent)
-          ? `${avgSent.toFixed(2)}점이에요`
+          ? `${avgSent.toFixed(2)} / 5점이에요`
           : "아직 계산할 데이터가 없어요",
       },
       {

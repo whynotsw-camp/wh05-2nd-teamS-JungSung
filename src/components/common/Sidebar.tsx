@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   ChartBarIcon,
   ChatBubbleLeftRightIcon,
-  DocumentTextIcon,
+  PencilSquareIcon,
 } from "@heroicons/react/24/outline";
 
 interface NavItem {
@@ -15,7 +15,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: "/", label: "대시보드", icon: ChartBarIcon },
   { to: "/sessions", label: "상담 주요 내용", icon: ChatBubbleLeftRightIcon },
-  { to: "/report", label: "리포트", icon: DocumentTextIcon },
+  { to: "/diary", label: "코칭 다이어리", icon: PencilSquareIcon },
 ];
 
 interface SidebarProps {
