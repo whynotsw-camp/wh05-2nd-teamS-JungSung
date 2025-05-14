@@ -1,5 +1,3 @@
-// src/pages/Dashboard.tsx
-import React from "react";
 import { motion } from "framer-motion";
 import KpiGrid from "../components/KPIGrid";
 import { PieDistribution } from "../components/PieDistribution";

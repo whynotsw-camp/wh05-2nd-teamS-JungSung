@@ -1,5 +1,3 @@
-// src/components/SessionCard.tsx
-import React from "react";
 import { SessionRecord } from "../hooks/useSessionData";
 
 interface SessionCardProps {
