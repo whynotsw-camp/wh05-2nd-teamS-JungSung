@@ -1,3 +1,4 @@
+// src/hooks/useDashboardData.ts
 import { useState, useEffect, useMemo } from "react";
 import Papa from "papaparse";
 import rawData from "../data/text_features_all_training.csv?raw";
@@ -15,6 +16,9 @@ export interface RecordType {
   content_category: string;
   top_nouns: string;
   session_date: string;
+
+  // 새로 추가된 필드
+  honorific_ratio?: number;
 }
 
 export interface KPIType {
@@ -83,6 +87,16 @@ export function useDashboardData() {
     [data, total]
   );
 
+  // ← 여기부터 추가된 부분
+  const avgHonorific = useMemo(
+    () =>
+      total
+        ? data.reduce((s, r) => s + (r.honorific_ratio ?? 0), 0) / total
+        : NaN,
+    [data, total]
+  );
+  // ↑ 추가된 부분
+
   // KPI 텍스트
   const kpi: KPIType[] = useMemo(
     () => [
@@ -111,6 +125,12 @@ export function useDashboardData() {
           : "아직 계산할 데이터가 없어요",
       },
       {
+        label: "상담사님의 존댓말 사용 비율은",
+        value: !isNaN(avgHonorific)
+          ? `${(avgHonorific * 100).toFixed(1)}%이고,`
+          : "아직 계산할 데이터가 없어요",
+      },
+      {
         label: "상담사님의 공감 표현 비율은",
         value: !isNaN(avgEmpathy)
           ? `${(avgEmpathy * 100).toFixed(1)}%나 하셨네요!`
@@ -124,13 +144,21 @@ export function useDashboardData() {
       },
       {
         label: "상담사님의 평균 발화 속도는",
-        value:
-          avgSpeed !== 0 || !isNaN(avgSpeed)
-            ? `${avgSpeed.toFixed(2)} WPM이에요`
-            : "아직 데이터가 없어요",
+        value: !isNaN(avgSpeed)
+          ? `${avgSpeed.toFixed(2)} WPM이에요`
+          : "아직 데이터가 없어요",
       },
     ],
-    [total, avgSent, avgScript, conflictRate, avgEmpathy, avgSilence, avgSpeed]
+    [
+      total,
+      avgSent,
+      avgScript,
+      conflictRate,
+      avgEmpathy,
+      avgSilence,
+      avgSpeed,
+      avgHonorific,
+    ]
   );
 
   // Pie 데이터 (건수 >100 필터)

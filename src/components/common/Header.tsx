@@ -7,7 +7,7 @@ import {
   Bars3Icon,
 } from "@heroicons/react/24/outline";
 
-const dateOptions = ["오늘", "이번 주", "이번 달"];
+const dateOptions = ["오늘의 나는?", "이번 주의 나는?", "이번 달의 나는?"];
 const channels = ["채팅", "전화", "전체"];
 
 interface HeaderProps {
