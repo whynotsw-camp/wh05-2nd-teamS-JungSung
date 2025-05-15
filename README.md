@@ -7,7 +7,7 @@ React + Vite + TailwindCSS 기반이며, GitHub Actions로 자동 배포됩니�
 
 ## 🚀 배포 주소
 
-👉 [https://RJ-Stony.github.io/Feple](https://RJ-Stony.github.io/Feple)
+👉🏻 [https://RJ-Stony.github.io/Feple](https://RJ-Stony.github.io/Feple)
 
 ---
 
