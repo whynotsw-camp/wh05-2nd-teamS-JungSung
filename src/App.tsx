@@ -10,7 +10,7 @@ export default function App() {
   const printRef = useRef<HTMLDivElement>(null);
 
   return (
-    <BrowserRouter basename="/Feple">
+    <BrowserRouter>
       {/* printRef를 Layout에 전달 */}
       <Layout printRef={printRef}>
         <Routes>

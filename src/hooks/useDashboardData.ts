@@ -37,11 +37,10 @@ export function useDashboardData() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // public 폴더에 있는 CSV 파일의 경로를 지정합니다.
     const csvFilePath = "/data/text_features_all_training.csv";
 
     Papa.parse<RecordType>(csvFilePath, {
-      download: true, // URL로부터 파일을 다운로드하도록 설정합니다.
+      download: true,
       header: true,
       dynamicTyping: true,
       complete: ({ data: parsed }) => {
@@ -106,54 +105,54 @@ export function useDashboardData() {
 
   const kpi: KPIType[] = useMemo(
     () => [
-      {
-        label: "현재까지 진행된 상담은",
-        value: total
-          ? `${total}건이에요`
-          : "아직 대시보드에 표시할 상담이 없어요",
-      },
-      {
-        label: "상담사님의 평균 감정 점수는",
-        value: !isNaN(avgSent)
-          ? `${avgSent.toFixed(2)} / 5점이에요`
-          : "아직 계산할 데이터가 없어요",
-      },
-      {
-        label: "스크립트를 지켜서 말한 비율은",
-        value: !isNaN(avgScript)
-          ? `${(avgScript * 100).toFixed(1)}%입니다`
-          : "아직 계산할 데이터가 없어요",
-      },
-      {
-        label: "고객님과의 갈등 비율은",
-        value: !isNaN(conflictRate)
-          ? `${conflictRate.toFixed(1)}%네요`
-          : "아직 계산할 데이터가 없어요",
-      },
-      {
-        label: "상담사님의 존댓말 사용 비율은",
-        value: !isNaN(avgHonorific)
-          ? `${(avgHonorific * 100).toFixed(1)}%이고,`
-          : "아직 계산할 데이터가 없어요",
-      },
-      {
-        label: "상담사님의 공감 표현 비율은",
-        value: !isNaN(avgEmpathy)
-          ? `${(avgEmpathy * 100).toFixed(1)}%나 하셨네요!`
-          : "아직 계산할 데이터가 없어요",
-      },
-      {
-        label: "상담사님의 평균 침묵 비율은",
-        value: !isNaN(avgSilence)
-          ? `${(avgSilence * 100).toFixed(1)}%이에요`
-          : "아직 데이터가 없어요",
-      },
-      {
-        label: "상담사님의 평균 발화 속도는",
-        value: !isNaN(avgSpeed)
-          ? `${avgSpeed.toFixed(2)} WPM이에요`
-          : "아직 데이터가 없어요",
-      },
+        {
+            label: "현재까지 진행된 상담은",
+            value: total
+            ? `${total}건이에요`
+            : "아직 대시보드에 표시할 상담이 없어요",
+        },
+        {
+            label: "상담사님의 평균 감정 점수는",
+            value: !isNaN(avgSent)
+            ? `${avgSent.toFixed(2)} / 5점이에요`
+            : "아직 계산할 데이터가 없어요",
+        },
+        {
+            label: "스크립트를 지켜서 말한 비율은",
+            value: !isNaN(avgScript)
+            ? `${(avgScript * 100).toFixed(1)}%입니다`
+            : "아직 계산할 데이터가 없어요",
+        },
+        {
+            label: "고객님과의 갈등 비율은",
+            value: !isNaN(conflictRate)
+            ? `${conflictRate.toFixed(1)}%네요`
+            : "아직 계산할 데이터가 없어요",
+        },
+        {
+            label: "상담사님의 존댓말 사용 비율은",
+            value: !isNaN(avgHonorific)
+            ? `${(avgHonorific * 100).toFixed(1)}%이고,`
+            : "아직 계산할 데이터가 없어요",
+        },
+        {
+            label: "상담사님의 공감 표현 비율은",
+            value: !isNaN(avgEmpathy)
+            ? `${(avgEmpathy * 100).toFixed(1)}%나 하셨네요!`
+            : "아직 계산할 데이터가 없어요",
+        },
+        {
+            label: "상담사님의 평균 침묵 비율은",
+            value: !isNaN(avgSilence)
+            ? `${(avgSilence * 100).toFixed(1)}%이에요`
+            : "아직 데이터가 없어요",
+        },
+        {
+            label: "상담사님의 평균 발화 속도는",
+            value: !isNaN(avgSpeed)
+            ? `${avgSpeed.toFixed(2)} WPM이에요`
+            : "아직 데이터가 없어요",
+        },
     ],
     [
       total,
@@ -170,7 +169,9 @@ export function useDashboardData() {
   const midData: PieDatum[] = useMemo(() => {
     const cnt: Record<string, number> = {};
     data.forEach((r) => {
-      cnt[r.mid_category] = (cnt[r.mid_category] || 0) + 1;
+      if (r.mid_category) { // 안전장치 추가
+        cnt[r.mid_category] = (cnt[r.mid_category] || 0) + 1;
+      }
     });
     return Object.entries(cnt)
       .map(([name, value]) => ({ name, value }))
@@ -180,7 +181,9 @@ export function useDashboardData() {
   const contentData: PieDatum[] = useMemo(() => {
     const cnt: Record<string, number> = {};
     data.forEach((r) => {
-      cnt[r.content_category] = (cnt[r.content_category] || 0) + 1;
+      if (r.content_category) { // 안전장치 추가
+        cnt[r.content_category] = (cnt[r.content_category] || 0) + 1;
+      }
     });
     return Object.entries(cnt)
       .map(([name, value]) => ({ name, value }))
@@ -190,12 +193,15 @@ export function useDashboardData() {
   const topNouns: TopNoun[] = useMemo(() => {
     const cnt: Record<string, number> = {};
     data.forEach((r) => {
-      r.top_nouns.split(",").forEach((n) => {
-        const w = n.trim();
-        if (w.length > 1 && w !== "금제" && w !== "지금") {
-          cnt[w] = (cnt[w] || 0) + 1;
-        }
-      });
+      // top_nouns가 비어있지 않은 문자열일 때만 실행하도록 수정
+      if (r.top_nouns && typeof r.top_nouns === 'string') {
+        r.top_nouns.split(",").forEach((n) => {
+          const w = n.trim();
+          if (w.length > 1 && w !== "금제" && w !== "지금") {
+            cnt[w] = (cnt[w] || 0) + 1;
+          }
+        });
+      }
     });
     return Object.entries(cnt)
       .sort((a, b) => b[1] - a[1])
