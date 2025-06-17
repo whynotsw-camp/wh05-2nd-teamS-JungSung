@@ -10,7 +10,7 @@
 ## ✨ 주요 내용
 
 ### 😃 현재까지 구현된 대시보드
-👉🏻 [https://RJ-Stony.github.io/Feple](https://RJ-Stony.github.io/Feple)
+👉🏻 [https://feple.vercel.app/](https://feple.vercel.app/)
 
 ### 📅 프로젝트 기간
 - 2025-05-12 ~ 2025-05-16
