@@ -65,9 +65,12 @@ function parseSessions(): Promise<SessionRecord[]> {
               let rawSegments: any[] = [];
               if (typeof r.asr_segments === "string") {
                 try {
-                  // eslint-disable-next-line no-eval
-                  rawSegments = eval(r.asr_segments);
+                  // 1. eval 대신, 문자열의 작은따옴표를 큰따옴표로 바꿉니다.
+                  const jsonString = r.asr_segments.replace(/'/g, '"');
+                  // 2. 안전한 JSON.parse를 사용해 객체로 변환합니다.
+                  rawSegments = JSON.parse(jsonString);
                 } catch {
+                  // 파싱에 실패하면 빈 배열로 안전하게 처리합니다.
                   rawSegments = [];
                 }
               } else {
