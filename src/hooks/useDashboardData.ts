@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import Papa from "papaparse";
-import rawData from "../data/dashboard/text_features_all_training.csv?raw";
 
 export interface RecordType {
   session_id: string;
@@ -15,8 +14,6 @@ export interface RecordType {
   content_category: string;
   top_nouns: string;
   session_date: string;
-
-  // 새로 추가된 필드
   honorific_ratio?: number;
 }
 
@@ -39,29 +36,39 @@ export function useDashboardData() {
   const [data, setData] = useState<RecordType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // CSV 한 번만 파싱
   useEffect(() => {
-    Papa.parse<RecordType>(rawData, {
+    // public 폴더에 있는 CSV 파일의 경로를 지정합니다.
+    const csvFilePath = "/data/text_features_all_training.csv";
+
+    Papa.parse<RecordType>(csvFilePath, {
+      download: true, // URL로부터 파일을 다운로드하도록 설정합니다.
       header: true,
       dynamicTyping: true,
       complete: ({ data: parsed }) => {
         setData(parsed);
         setLoading(false);
       },
+      error: (err) => {
+        console.error("CSV 파싱 에러:", err);
+        setLoading(false);
+      },
     });
   }, []);
 
   const total = useMemo(() => data.length, [data]);
+
   const avgSent = useMemo(
     () =>
       total ? data.reduce((s, r) => s + r.고객_sent_score, 0) / total : NaN,
     [data, total]
   );
+
   const avgScript = useMemo(
     () =>
       total ? data.reduce((s, r) => s + r.script_phrase_ratio, 0) / total : NaN,
     [data, total]
   );
+
   const conflictRate = useMemo(
     () =>
       total
@@ -69,10 +76,12 @@ export function useDashboardData() {
         : NaN,
     [data, total]
   );
+
   const avgEmpathy = useMemo(
     () => (total ? data.reduce((s, r) => s + r.empathy_ratio, 0) / total : NaN),
     [data, total]
   );
+
   const avgSilence = useMemo(
     () =>
       total
@@ -80,13 +89,13 @@ export function useDashboardData() {
         : NaN,
     [data, total]
   );
+
   const avgSpeed = useMemo(
     () =>
       total ? data.reduce((s, r) => s + (r.speed_ratio ?? 0), 0) / total : NaN,
     [data, total]
   );
 
-  // ← 여기부터 추가된 부분
   const avgHonorific = useMemo(
     () =>
       total
@@ -94,9 +103,7 @@ export function useDashboardData() {
         : NaN,
     [data, total]
   );
-  // ↑ 추가된 부분
 
-  // KPI 텍스트
   const kpi: KPIType[] = useMemo(
     () => [
       {
@@ -160,7 +167,6 @@ export function useDashboardData() {
     ]
   );
 
-  // Pie 데이터 (건수 >100 필터)
   const midData: PieDatum[] = useMemo(() => {
     const cnt: Record<string, number> = {};
     data.forEach((r) => {
@@ -181,7 +187,6 @@ export function useDashboardData() {
       .filter((d) => d.value > 100);
   }, [data]);
 
-  // Top Nouns (길이>1, "금제"/"지금" 제외)
   const topNouns: TopNoun[] = useMemo(() => {
     const cnt: Record<string, number> = {};
     data.forEach((r) => {
