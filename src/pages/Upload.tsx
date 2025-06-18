@@ -43,7 +43,7 @@ export default function Upload() {
       animate="visible"
     >
       <h2 className="text-2xl font-semibold text-uplus-navy">
-        오디오 파일 분석
+        상담 파일 분석
       </h2>
 
       <div className="bg-white rounded-xl p-8 shadow-md">
@@ -66,7 +66,7 @@ export default function Upload() {
             <input
               id="audio-upload"
               type="file"
-              className="sr-only" // 실제 input은 숨김
+              className="sr-only"
               accept="audio/*"
               onChange={handleFileChange}
             />
