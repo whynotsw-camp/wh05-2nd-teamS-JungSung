@@ -37,7 +37,7 @@ export function useDashboardData() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const csvFilePath = "/data/text_features_all_training.csv";
+    const csvFilePath = "/data/text_features_all_training_ver2.csv";
 
     Papa.parse<RecordType>(csvFilePath, {
       download: true,

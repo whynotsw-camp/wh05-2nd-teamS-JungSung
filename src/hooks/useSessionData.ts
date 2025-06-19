@@ -42,7 +42,7 @@ function parseSessions(): Promise<SessionRecord[]> {
       }
 
       // public 폴더의 파일을 가리키는 경로
-      const csvFilePath = "/data/text_features_all_training.csv";
+      const csvFilePath = "/data/text_features_all_training_ver2.csv";
 
       Papa.parse<RawCsvRecord>(csvFilePath, {
         download: true,
