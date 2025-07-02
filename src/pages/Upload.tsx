@@ -1,43 +1,73 @@
 import React, { useState } from "react";
 import { motion, Variants } from "framer-motion";
 import { ArrowUpTrayIcon, DocumentIcon } from "@heroicons/react/24/outline";
+import { ResultsDisplay } from "../components/ResultsDisplay";
 
 const pageVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      ease: "easeOut",
-      duration: 0.5,
-    },
+    transition: { ease: "easeOut", duration: 0.5 },
   },
 };
+
+// API 응답 결과의 타입을 정의
+interface AnalysisResult {
+  metrics: { [key: string]: number | string };
+  transcript: { speaker: 'Agent' | 'Customer'; text: string }[];
+  // 필요에 따라 다른 필드도 추가
+}
 
 export default function Upload() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
+      setAnalysisResult(null);
+      setError(null);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) return;
 
-    // TODO: 여기에 파일 업로드 및 API 호출 로직을 추가하기
-    console.log("분석 시작:", selectedFile.name);
     setIsLoading(true);
-    // 3초 후 로딩 종료
-    setTimeout(() => setIsLoading(false), 3000);
+    setError(null);
+    setAnalysisResult(null);
+
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        body: selectedFile,
+        headers: {
+          'Content-Type': selectedFile.type,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "분석에 실패했습니다.");
+      }
+
+      const result: AnalysisResult = await response.json();
+      setAnalysisResult(result);
+      
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <motion.div
-      className="p-6 space-y-6"
+      className="p-6 md:p-8 space-y-6"
       variants={pageVariants}
       initial="hidden"
       animate="visible"
@@ -60,7 +90,7 @@ export default function Upload() {
                 분석할 파일을 선택하세요
               </p>
               <p className="text-xs text-gray-500">
-                (MP3, WAV, M4A 등)
+                (MP3, WAV 파일)
               </p>
             </label>
             <input
@@ -92,6 +122,25 @@ export default function Upload() {
           </div>
         </form>
       </div>
+
+      {isLoading && (
+          <div className="text-center mt-6">
+              <p className="text-uplus-navy animate-pulse">AI가 열심히 분석하고 있어요. 잠시만 기다려주세요...</p>
+          </div>
+      )}
+
+      {error && (
+        <motion.div 
+            className="mt-6 p-4 bg-red-100 text-red-700 rounded-lg"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+        >
+            <p className="font-bold">오류 발생</p>
+            <p>{error}</p>
+        </motion.div>
+      )}
+
+      {analysisResult && <ResultsDisplay data={analysisResult} />}
     </motion.div>
   );
 }
