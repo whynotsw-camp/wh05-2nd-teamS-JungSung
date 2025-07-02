@@ -78,7 +78,7 @@ export function Header({ onDateChange, onMenuToggle, printRef }: HeaderProps) {
         </button>
         <img src={logoSvg} className="w-16 h-8 object-contain" alt="로고" />
         <h1 className="font-headline font-semibold text-white text-lg">
-          Peple 대시보드
+          Feple 대시보드
         </h1>
       </div>
 
