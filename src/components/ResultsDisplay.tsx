@@ -77,7 +77,7 @@ export const ResultsDisplay: React.FC<{ data: ResultsData }> = ({ data }) => {
         <MetricCard 
           key={key} 
           label={metricDetails[key]?.name || key}
-          value={metricDetails[key]?.unit === '%' ? (metrics[key] as number) : metrics[key]}
+          value={key === 'silence_ratio' ? (metrics[key] as number) * 100 : metrics[key]}
           unit={metricDetails[key]?.unit || ""}
         />
       ))}
