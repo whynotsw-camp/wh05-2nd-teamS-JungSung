@@ -1,7 +1,7 @@
 import React, { createContext, useRef, ReactNode, RefObject } from 'react';
 
 interface PrintRefContextType {
-  printRef: RefObject<HTMLDivElement>;
+  printRef: RefObject<HTMLDivElement | null>;
 }
 
 export const PrintRefContext = createContext<PrintRefContextType | undefined>(undefined);
