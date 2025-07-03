@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Upload from "./pages/Upload";
 import Sessions from "./pages/Sessions";
 import Politeness from "./pages/Politeness";
+import Diary from "./pages/Diary";
 import { PrintRefProvider } from "./context/PrintRefContext";
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
             <Route path="/upload" element={<Upload />} />
             <Route path="/sessions" element={<Sessions />} />
             <Route path="/politeness" element={<Politeness />} />
+            <Route path="/diary" element={<Diary />} />
           </Routes>
         </Layout>
       </PrintRefProvider>

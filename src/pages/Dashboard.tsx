@@ -34,7 +34,7 @@ export default function Dashboard() {
   const context = useContext(PrintRefContext);
 
   if (!context) {
-    throw new Error("Dashboard must be used within a PrintRefProvider");
+    throw new Error("대시보드에는 PrintRefProvider가 필요합니다.");
   }
 
   const { printRef } = context;
