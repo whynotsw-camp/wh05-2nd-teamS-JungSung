@@ -68,7 +68,7 @@ const MetricCard: React.FC<{ label: string; value: number | string; unit: string
   </motion.div>
 );
 
-export const ResultsDisplay: React.FC<{ data: ResultsData }> = ({ data }) => {
+export const ResultsDisplay = ({ data }: { data: ResultsData }) => {
   const { metrics, transcript } = data;
 
   const renderMetrics = (keys: string[]) => (

@@ -1,14 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
+import { PrintRefContext } from "../../context/PrintRefContext";
 
 interface LayoutProps {
-  printRef: React.RefObject<HTMLDivElement | null>;
   children: React.ReactNode;
 }
 
-export default function Layout({ printRef, children }: LayoutProps) {
+export default function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const context = useContext(PrintRefContext);
+
+  if (!context) {
+    throw new Error("Layout must be used within a PrintRefProvider");
+  }
+
+  const { printRef } = context;
 
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -24,3 +31,4 @@ export default function Layout({ printRef, children }: LayoutProps) {
     </div>
   );
 }
+

@@ -1,9 +1,11 @@
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import KpiGrid from "../components/KPIGrid";
 import { PieDistribution } from "../components/PieDistribution";
 import { useDashboardData } from "../hooks/useDashboardData";
+import { useContext } from "react";
+import { PrintRefContext } from "../context/PrintRefContext";
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
@@ -15,7 +17,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 10 },
   visible: {
     opacity: 1,
@@ -24,14 +26,18 @@ const itemVariants = {
   },
 };
 
-interface DashboardProps {
-  printRef: React.RefObject<HTMLDivElement | null>;
-}
-
-export default function Dashboard({ printRef }: DashboardProps) {
+export default function Dashboard() {
   const { loading, kpi, midData, contentData } = useDashboardData();
   const COLORS = ["#6C10BE", "#FF007C", "#02075D", "#FFCC00", "#8DD1E1"];
   const KPI_SLOTS = 8;
+
+  const context = useContext(PrintRefContext);
+
+  if (!context) {
+    throw new Error("Dashboard must be used within a PrintRefProvider");
+  }
+
+  const { printRef } = context;
 
   if (loading) {
     return (
