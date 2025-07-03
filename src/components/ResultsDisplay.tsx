@@ -44,7 +44,7 @@ const metricDetails: Record<string, Metric> = {
     talk_ratio: { name: "발화량 비율", unit: "배" },
 };
 
-const Section: React.FC<{ title: string; icon: React.ElementType; children: React.ReactNode }> = ({ title, icon: Icon, children }) => (
+const Section = ({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) => (
     <div>
         <div className="flex items-center mb-4">
             <Icon className="w-6 h-6 text-uplus-magenta mr-2" />
@@ -54,7 +54,7 @@ const Section: React.FC<{ title: string; icon: React.ElementType; children: Reac
     </div>
 );
 
-const MetricCard: React.FC<{ label: string; value: number | string; unit: string; }> = ({ label, value, unit }) => (
+const MetricCard = React.memo(({ label, value, unit }: { label: string; value: number | string; unit: string; }) => (
   <motion.div 
     className="bg-white p-4 rounded-lg shadow-md text-center"
     whileHover={{ scale: 1.05 }}
@@ -66,7 +66,7 @@ const MetricCard: React.FC<{ label: string; value: number | string; unit: string
       {unit && <span className="text-lg font-medium ml-1">{unit}</span>}
     </p>
   </motion.div>
-);
+));
 
 export const ResultsDisplay = ({ data }: { data: ResultsData }) => {
   const { metrics, transcript } = data;
