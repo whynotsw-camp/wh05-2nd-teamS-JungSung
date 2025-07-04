@@ -3,8 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 
 // --- Supabase 클라이언트 초기화 ---
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.VITE_SUPABASE_URL,
+  process.env.VITE_SUPABASE_ANON_KEY
 );
 // ---------------------------------
 
