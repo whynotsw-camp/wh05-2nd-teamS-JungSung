@@ -1,18 +1,23 @@
 import Replicate from "replicate";
+import { createClient } from "@supabase/supabase-js";
 
-// Replicate 클라이언트 초기화
+// --- Supabase 클라이언트 초기화 ---
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+// ---------------------------------
+
 const replicate = new Replicate({
-  auth: process.env.REPLICATE_API_TOKEN, // Vercel에 설정한 환경 변수 사용
+  auth: process.env.REPLICATE_API_TOKEN,
 });
 
-// Vercel 서버리스 함수의 기본 설정을 오버라이드하여 파일 스트림을 처리
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-// 파일을 버퍼로 변환하는 헬퍼 함수
 const streamToBuffer = async (stream) => {
   const chunks = [];
   for await (const chunk of stream) {
@@ -31,8 +36,7 @@ export default async function handler(req, res) {
     const base64Audio = `data:audio/wav;base64,${buffer.toString("base64")}`;
 
     console.log("Replicate 분석 시작...");
-    const output = await replicate.run(
-      // 중요: 모델 페이지의 'Versions' 탭에서 실제 버전을 복사해 사용하세요.
+    const analysisOutput = await replicate.run(
       "ohdurma/feple-ai-backend:aabfccaa466810596c17946b24c967767202dc921684cd141bdd943202aacad8",
       {
         input: {
@@ -40,12 +44,30 @@ export default async function handler(req, res) {
         }
       }
     );
-    console.log("분석 완료!");
+    console.log("분석 완료! Supabase에 저장 시작...");
+
+    // --- Supabase에 결과 저장 ---
+    const { metrics, transcript } = analysisOutput;
     
-    res.status(200).json(output);
+    const { error: dbError } = await supabase
+      .from('analysis_results')
+      .insert({ 
+        session_id: metrics.session_id, 
+        metrics: metrics,
+        transcript: transcript,
+        // user_id는 나중에 인증 기능 추가 시 연결합니다.
+      });
+
+    if (dbError) {
+      throw new Error(`데이터베이스 저장 실패: ${dbError.message}`);
+    }
+    console.log("Supabase에 저장 완료.");
+    // -------------------------
+    
+    res.status(200).json(analysisOutput);
 
   } catch (error) {
-    console.error("Replicate API 호출 오류:", error);
-    res.status(500).json({ detail: "서버에서 AI 모델을 호출하는 중 오류가 발생했습니다." });
+    console.error("전체 프로세스 오류:", error);
+    res.status(500).json({ detail: "서버에서 오류가 발생했습니다." });
   }
 }
