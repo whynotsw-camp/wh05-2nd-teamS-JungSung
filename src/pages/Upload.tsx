@@ -42,7 +42,7 @@ export default function Upload() {
     setAnalysisResult(null);
 
     try {
-      const response = await fetch("/api/analyze", {
+      const response = await fetch("/api/predictions", {
         method: "POST",
         body: selectedFile,
         headers: {
