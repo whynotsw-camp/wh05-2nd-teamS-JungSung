@@ -14,8 +14,8 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { to: "/upload", label: "상담 파일 업로드", icon: SpeakerWaveIcon },
   { to: "/", label: "대시보드", icon: ChartBarIcon },
+  { to: "/upload", label: "상담 파일 업로드", icon: SpeakerWaveIcon },
   { to: "/sessions", label: "상담 주요 내용", icon: ChatBubbleLeftRightIcon },
   { to: "/diary", label: "코칭 다이어리", icon: PencilSquareIcon },
 ];
