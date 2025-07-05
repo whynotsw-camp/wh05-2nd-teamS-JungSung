@@ -6,21 +6,24 @@ import Sessions from "./pages/Sessions";
 import Politeness from "./pages/Politeness";
 import Diary from "./pages/Diary";
 import { PrintRefProvider } from "./context/PrintRefContext";
+import { AnalysisResultProvider } from "./context/AnalysisResultContext";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <PrintRefProvider>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/upload" element={<Upload />} />
-            <Route path="/sessions" element={<Sessions />} />
-            <Route path="/politeness" element={<Politeness />} />
-            <Route path="/diary" element={<Diary />} />
-          </Routes>
-        </Layout>
-      </PrintRefProvider>
+      <AnalysisResultProvider>
+        <PrintRefProvider>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/upload" element={<Upload />} />
+              <Route path="/sessions" element={<Sessions />} />
+              <Route path="/politeness" element={<Politeness />} />
+              <Route path="/diary" element={<Diary />} />
+            </Routes>
+          </Layout>
+        </PrintRefProvider>
+      </AnalysisResultProvider>
     </BrowserRouter>
   );
 }

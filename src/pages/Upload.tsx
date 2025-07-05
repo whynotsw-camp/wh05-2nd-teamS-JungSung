@@ -3,8 +3,10 @@ import { motion, Variants } from "framer-motion";
 import { ArrowUpTrayIcon, DocumentIcon } from "@heroicons/react/24/outline";
 import { createClient } from '@supabase/supabase-js';
 import { ResultsDisplay } from "../components/ResultsDisplay";
+// AnalysisResult 타입을 컨텍스트에서 직접 임포트합니다.
+import { useAnalysisResult, AnalysisResult } from "../context/AnalysisResultContext";
 
-// Supabase 클라이언트 초기화 (Vite 규칙 사용)
+// Supabase 클라이언트 초기화
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL!,
   import.meta.env.VITE_SUPABASE_ANON_KEY!
@@ -19,15 +21,13 @@ const pageVariants: Variants = {
   },
 };
 
-interface AnalysisResult {
-  metrics: { [key: string]: number | string };
-  transcript: { speaker: 'Agent' | 'Customer'; text: string; start_time: number; end_time: number }[];
-}
+// 로컬 타입 정의를 제거하고 컨텍스트의 타입을 사용합니다.
+// interface AnalysisResult { ... }
 
 interface Prediction {
     id: string;
     status: 'starting' | 'processing' | 'succeeded' | 'failed';
-    output: AnalysisResult;
+    output: AnalysisResult; // 임포트한 AnalysisResult 타입을 사용
     error: string | null;
 }
 
@@ -36,16 +36,16 @@ interface ErrorResponse {
 }
 
 export default function Upload() {
+  const { result, setResult, isLoading, setIsLoading } = useAnalysisResult();
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState("분석 시작");
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
-      setAnalysisResult(null);
+      setResult(null);
       setError(null);
     }
   };
@@ -59,10 +59,9 @@ export default function Upload() {
     setIsLoading(true);
     setLoadingStatus("Supabase에 오디오 업로드 중...");
     setError(null);
-    setAnalysisResult(null);
+    setResult(null);
 
     try {
-      // 1. Supabase Storage에 파일 업로드
       const fileExt = selectedFile.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `uploads/${fileName}`;
@@ -72,13 +71,11 @@ export default function Upload() {
         .upload(filePath, selectedFile);
       if (uploadError) throw new Error(`Supabase 업로드 실패: ${uploadError.message}`);
 
-      // 2. 업로드된 파일의 공개 URL 가져오기
       const { data } = supabase.storage
         .from('audio-bucket')
         .getPublicUrl(filePath);
       const audioUrl = data.publicUrl;
 
-      // 3. /api/analyze-url 주소로 URL을 전달하여 분석 시작 요청
       setLoadingStatus("AI 분석 시작 요청 중...");
       const startResponse = await fetch("/api/analyze-url", {
         method: "POST",
@@ -92,13 +89,12 @@ export default function Upload() {
       }
       let prediction: Prediction = await startResponse.json();
 
-      // 4. 상태 확인 (폴링) 시작
       setLoadingStatus("AI 모델이 분석 중입니다...");
       while (
         prediction.status !== "succeeded" &&
         prediction.status !== "failed"
       ) {
-        await sleep(3000); // 3초마다 상태 확인
+        await sleep(3000);
         const statusResponse = await fetch(`/api/predictions/${prediction.id}`);
         
         if (!statusResponse.ok) {
@@ -112,8 +108,7 @@ export default function Upload() {
         throw new Error(`AI 분석 실패: ${prediction.error}`);
       }
       
-      // 5. 최종 결과 설정
-      setAnalysisResult(prediction.output);
+      setResult(prediction.output);
 
     } catch (err) {
       if (err instanceof Error) {
@@ -200,7 +195,7 @@ export default function Upload() {
             </motion.div>
         )}
 
-        {analysisResult && <ResultsDisplay data={analysisResult} />}
+        {result && <ResultsDisplay data={result} />}
     </motion.div>
   );
 }

@@ -32,12 +32,9 @@ const metricDetails: Record<string, Metric> = {
     apology_ratio: { name: "사과 표현 비율", unit: "%" },
     avg_response_latency: { name: "평균 응답 속도", unit: "초" },
     interruption_count: { name: "대화 가로채기", unit: "회" },
-    silence_ratio: { name: "침묵 비율", unit: "%" },
 };
 
 // --- 특별 지표를 위한 헬퍼 함수 및 컴포넌트 ---
-
-// 1. 문제 해결력 점수를 설명으로 변환
 const getSuggestionDescription = (score: number) => {
     if (score >= 1.0) return "첫 제안으로 해결";
     if (score >= 0.6) return "두 번째 제안으로 해결";
@@ -73,18 +70,10 @@ const SentimentTrend: React.FC<{ trend: number }> = ({ trend }) => {
 };
 
 // 3. 발화량 비율을 설명으로 변환
-const TalkRatio: React.FC<{ ratio: number }> = ({ ratio }) => {
-    let text;
-    if (ratio > 1.2) text = `고객이 ${ratio.toFixed(1)}배 더 많음`;
-    else if (ratio < 0.8) text = `상담사가 ${(1 / ratio).toFixed(1)}배 더 많음`;
-    else text = "유사한 수준";
-
-    return (
-        <div className="text-center">
-            <p className="text-sm text-gray-500">상담사-고객 발화량</p>
-            <p className="text-xl font-bold text-uplus-navy mt-1">{text}</p>
-        </div>
-    );
+const getTalkRatioDescription = (ratio: number) => {
+    if (ratio > 1.2) return `고객이 ${ratio.toFixed(1)}배 더 많음`;
+    if (ratio < 0.8) return `상담사가 ${(1 / ratio).toFixed(1)}배 더 많음`;
+    return "유사한 수준";
 };
 
 
@@ -105,7 +94,7 @@ const Section: React.FC<{ title: string; icon: React.ElementType; children: Reac
 const MetricCard: React.FC<{ label: string; value: number | string; unit?: string }> = ({ label, value, unit }) => {
     const formatValue = (val: number | string) => {
         if (typeof val !== 'number') return val;
-        // '회' 단위는 소수점 없이 표시
+        // '회' 단위는 소수점 없이 정수로 표시
         if (unit === '회') {
             return val.toFixed(0);
         }
@@ -119,31 +108,31 @@ const MetricCard: React.FC<{ label: string; value: number | string; unit?: strin
         transition={{ type: "spring", stiffness: 300 }}
       >
         <p className="text-sm text-gray-500">{label}</p>
-        <p className="text-2xl font-bold text-uplus-navy mt-1">
-          {formatValue(value)}
-          {unit && <span className="text-lg font-medium ml-1">{unit}</span>}
-        </p>
-      </motion.div>
+            <p className="text-2xl font-bold text-uplus-navy mt-1">
+                {formatValue(value)}
+                {unit && <span className="text-lg font-medium ml-1">{unit}</span>}
+            </p>
+        </motion.div>
     );
 };
 
 export const ResultsDisplay: React.FC<{ data: ResultsData }> = ({ data }) => {
-  const { metrics, transcript } = data;
-
-  const renderMetrics = (keys: string[]) => (
-    <>
-      {keys.filter(key => metrics[key] !== undefined).map(key => (
-        <MetricCard
-          key={key}
-          label={metricDetails[key]?.name || key}
-          value={metrics[key]}
-          unit={metricDetails[key]?.unit || ""}
-        />
-      ))}
-    </>
-  );
-
-  return (
+    const { metrics, transcript } = data;
+  
+    const renderMetrics = (keys: string[]) => (
+      <>
+        {keys.filter(key => metrics[key] !== undefined).map(key => (
+          <MetricCard
+            key={key}
+            label={metricDetails[key]?.name || key}
+            value={metrics[key]}
+            unit={metricDetails[key]?.unit || ""}
+          />
+        ))}
+      </>
+    );
+  
+    return (
     <motion.div
       className="space-y-10 mt-8"
       initial={{ opacity: 0, y: 20 }}
@@ -156,19 +145,21 @@ export const ResultsDisplay: React.FC<{ data: ResultsData }> = ({ data }) => {
             <MetricCard label="문제 해결력" value={getSuggestionDescription(metrics.suggestions as number)} />
             <MetricCard label="비속어 사용" value={metrics.profane} unit="회" />
         </Section>
-
+        
         <Section title="감정 및 태도 분석" icon={BeakerIcon}>
             <div className="col-span-2 md:col-span-2 bg-white p-4 rounded-lg shadow-md flex items-center justify-center">
                 <SentimentTrend trend={metrics.customer_sentiment_trend as number} />
             </div>
             {renderMetrics(['positive_word_ratio', 'negative_word_ratio', 'honorific_ratio', 'euphonious_word_ratio', 'empathy_ratio', 'apology_ratio'])}
         </Section>
-
+        
+        {/* --- 대화 흐름 분석 섹션 레이아웃 수정 --- */}
         <Section title="대화 흐름 분석" icon={ClockIcon}>
-            <div className="col-span-2 md:col-span-2 bg-white p-4 rounded-lg shadow-md flex items-center justify-center">
-                <TalkRatio ratio={metrics.talk_ratio as number} />
-            </div>
-            {renderMetrics(['avg_response_latency', 'interruption_count', 'silence_ratio'])}
+            <MetricCard label="상담사-고객 발화량" value={getTalkRatioDescription(metrics.talk_ratio as number)} />
+            <MetricCard label="평균 응답 속도" value={metrics.avg_response_latency} unit="초" />
+            <MetricCard label="대화 가로채기" value={metrics.interruption_count} unit="회" />
+            {/* 침묵 비율은 100을 곱해서 %로 표시 */}
+            <MetricCard label="침묵 비율" value={(metrics.silence_ratio as number) * 100} unit="%" />
         </Section>
 
         <div className="border-t pt-6">
