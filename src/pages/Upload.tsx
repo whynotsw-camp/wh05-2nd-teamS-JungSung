@@ -69,21 +69,25 @@ export default function Upload() {
       const { error: uploadError } = await supabase.storage
         .from('audio-bucket')
         .upload(filePath, selectedFile);
-
       if (uploadError) throw new Error(`Supabase 업로드 실패: ${uploadError.message}`);
 
-      const { data } = supabase.storage
-        .from('audio-bucket')
-        .getPublicUrl(filePath);
+      // 2. 이제 우리 서버에 '서명된 URL'을 요청합니다.
+      setLoadingStatus("보안 URL 생성 중...");
+      const signedUrlResponse = await fetch("/api/get-signed-url", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filePath }),
+      });
+      if (!signedUrlResponse.ok) throw new Error("보안 URL 생성에 실패했습니다.");
       
-      const audioUrl = data.publicUrl;
+      const { signedUrl } = await signedUrlResponse.json();
 
-      // 2. /api/analyze-url 주소로 URL을 전달하여 분석 시작 요청
+      // 3. /api/analyze-url 주소로 '서명된 URL'을 전달하여 분석 시작 요청
       setLoadingStatus("AI 분석 시작 요청 중...");
       const startResponse = await fetch("/api/analyze-url", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audioUrl }),
+        body: JSON.stringify({ audioUrl: signedUrl }), // 서명된 URL 전달
       });
 
       if (!startResponse.ok) {
