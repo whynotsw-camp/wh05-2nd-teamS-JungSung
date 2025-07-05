@@ -4,9 +4,10 @@ import { ArrowUpTrayIcon, DocumentIcon } from "@heroicons/react/24/outline";
 import { createClient } from '@supabase/supabase-js';
 import { ResultsDisplay } from "../components/ResultsDisplay";
 
+// Supabase 클라이언트 초기화 (Vite 규칙 사용)
 const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  import.meta.env.VITE_SUPABASE_URL!,
+  import.meta.env.VITE_SUPABASE_ANON_KEY!
 );
 
 const pageVariants: Variants = {
@@ -71,23 +72,18 @@ export default function Upload() {
         .upload(filePath, selectedFile);
       if (uploadError) throw new Error(`Supabase 업로드 실패: ${uploadError.message}`);
 
-      // 2. 이제 우리 서버에 '서명된 URL'을 요청합니다.
-      setLoadingStatus("보안 URL 생성 중...");
-      const signedUrlResponse = await fetch("/api/get-signed-url", {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filePath }),
-      });
-      if (!signedUrlResponse.ok) throw new Error("보안 URL 생성에 실패했습니다.");
-      
-      const { signedUrl } = await signedUrlResponse.json();
+      // 2. 업로드된 파일의 공개 URL 가져오기
+      const { data } = supabase.storage
+        .from('audio-bucket')
+        .getPublicUrl(filePath);
+      const audioUrl = data.publicUrl;
 
-      // 3. /api/analyze-url 주소로 '서명된 URL'을 전달하여 분석 시작 요청
+      // 3. /api/analyze-url 주소로 URL을 전달하여 분석 시작 요청
       setLoadingStatus("AI 분석 시작 요청 중...");
       const startResponse = await fetch("/api/analyze-url", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audioUrl: signedUrl }), // 서명된 URL 전달
+        body: JSON.stringify({ audioUrl }),
       });
 
       if (!startResponse.ok) {
@@ -96,9 +92,12 @@ export default function Upload() {
       }
       let prediction: Prediction = await startResponse.json();
 
-      // 3. 상태 확인 (폴링) 시작
+      // 4. 상태 확인 (폴링) 시작
       setLoadingStatus("AI 모델이 분석 중입니다...");
-      while (prediction.status !== "succeeded" && prediction.status !== "failed") {
+      while (
+        prediction.status !== "succeeded" &&
+        prediction.status !== "failed"
+      ) {
         await sleep(3000); // 3초마다 상태 확인
         const statusResponse = await fetch(`/api/predictions/${prediction.id}`);
         
@@ -113,6 +112,7 @@ export default function Upload() {
         throw new Error(`AI 분석 실패: ${prediction.error}`);
       }
       
+      // 5. 최종 결과 설정
       setAnalysisResult(prediction.output);
 
     } catch (err) {
@@ -133,75 +133,74 @@ export default function Upload() {
       initial="hidden"
       animate="visible"
     >
-      <h2 className="text-2xl font-semibold text-uplus-navy">
-        상담 파일 분석
-      </h2>
+        <h2 className="text-2xl font-semibold text-uplus-navy">
+            상담 파일 분석
+        </h2>
+        <div className="bg-white rounded-xl p-8 shadow-md">
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="text-center">
+                    <label
+                      htmlFor="audio-upload"
+                      className="cursor-pointer group inline-block"
+                    >
+                        <div className="w-24 h-24 mx-auto flex items-center justify-center rounded-full bg-gray-100 group-hover:bg-indigo-100 transition-colors">
+                            <ArrowUpTrayIcon className="w-10 h-10 text-gray-400 group-hover:text-uplus-magenta" />
+                        </div>
+                        <p className="mt-2 font-medium text-uplus-navy">
+                            분석할 파일을 선택하세요
+                        </p>
+                        <p className="text-xs text-gray-500">
+                            (MP3, WAV 파일)
+                        </p>
+                    </label>
+                    <input
+                      id="audio-upload"
+                      type="file"
+                      className="sr-only"
+                      accept="audio/*"
+                      onChange={handleFileChange}
+                    />
+                </div>
 
-      <div className="bg-white rounded-xl p-8 shadow-md">
-        <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="text-center">
-          <label
-            htmlFor="audio-upload"
-            className="cursor-pointer group inline-block"
-          >
-            <div className="w-24 h-24 mx-auto flex items-center justify-center rounded-full bg-gray-100 group-hover:bg-indigo-100 transition-colors">
-              <ArrowUpTrayIcon className="w-10 h-10 text-gray-400 group-hover:text-uplus-magenta" />
-            </div>
-            <p className="mt-2 font-medium text-uplus-navy">
-              분석할 파일을 선택하세요
-            </p>
-            <p className="text-xs text-gray-500">
-              (MP3, WAV 파일)
-            </p>
-          </label>
-          <input
-            id="audio-upload"
-            type="file"
-            className="sr-only"
-            accept="audio/*"
-            onChange={handleFileChange}
-          />
+                {selectedFile && (
+                    <div className="flex items-center justify-center p-3 border-2 border-dashed rounded-lg">
+                        <DocumentIcon className="w-6 h-6 text-gray-500 mr-2 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 truncate">
+                            {selectedFile.name}
+                        </span>
+                    </div>
+                )}
+
+                <div>
+                    <button
+                      type="submit"
+                      disabled={!selectedFile || isLoading}
+                      className="w-full px-4 py-3 bg-uplus-magenta text-white font-bold rounded-lg disabled:bg-gray-300 hover:bg-opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uplus-magenta"
+                    >
+                        {isLoading ? loadingStatus : "분석 시작"}
+                    </button>
+                </div>
+            </form>
         </div>
-
-        {selectedFile && (
-          <div className="flex items-center justify-center p-3 border-2 border-dashed rounded-lg">
-            <DocumentIcon className="w-6 h-6 text-gray-500 mr-2 flex-shrink-0" />
-            <span className="text-sm text-gray-700 truncate">
-              {selectedFile.name}
-            </span>
-          </div>
+      
+        {isLoading && (
+            <div className="text-center mt-6">
+                <p className="text-uplus-navy animate-pulse">{loadingStatus}</p>
+            </div>
         )}
 
-        <div>
-          <button
-            type="submit"
-            disabled={!selectedFile || isLoading}
-            className="w-full px-4 py-3 bg-uplus-magenta text-white font-bold rounded-lg disabled:bg-gray-300 hover:bg-opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uplus-magenta"
-          >
-            {isLoading ? loadingStatus : "분석 시작"}
-          </button>
-        </div>
-        </form>
-      </div>
-      
-      {isLoading && (
-          <div className="text-center mt-6">
-              <p className="text-uplus-navy animate-pulse">{loadingStatus}</p>
-          </div>
-      )}
+        {error && (
+            <motion.div 
+                className="mt-6 p-4 bg-red-100 text-red-700 rounded-lg"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+            >
+                <p className="font-bold">오류 발생</p>
+                <p>{error}</p>
+            </motion.div>
+        )}
 
-      {error && (
-        <motion.div 
-            className="mt-6 p-4 bg-red-100 text-red-700 rounded-lg"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-        >
-            <p className="font-bold">오류 발생</p>
-            <p>{error}</p>
-        </motion.div>
-      )}
-
-      {analysisResult && <ResultsDisplay data={analysisResult} />}
+        {analysisResult && <ResultsDisplay data={analysisResult} />}
     </motion.div>
   );
 }
