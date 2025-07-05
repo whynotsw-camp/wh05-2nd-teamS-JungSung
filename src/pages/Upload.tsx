@@ -21,7 +21,7 @@ const pageVariants: Variants = {
 
 interface AnalysisResult {
   metrics: { [key: string]: number | string };
-  transcript: { speaker: '상담사' | '고객'; text: string; start_time: number; end_time: number }[];
+  transcript: { speaker: 'Agent' | 'Customer'; text: string; start_time: number; end_time: number }[];
 }
 
 interface Prediction {
