@@ -5,6 +5,7 @@ import { jsPDF } from "jspdf";
 import logoSvg from "/images/logo.svg";
 import { ArrowDownTrayIcon, Bars3Icon } from "@heroicons/react/24/outline";
 import { AnimatePresence, motion } from "framer-motion";
+import { useAnalysisResult } from "../../context/AnalysisResultContext";
 
 const dateOptions = ["오늘", "이번 주", "이번 달"];
 
@@ -21,6 +22,7 @@ export function Header({ onDateChange, onMenuToggle, printRef }: HeaderProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { isLoading } = useAnalysisResult();
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -80,6 +82,11 @@ export function Header({ onDateChange, onMenuToggle, printRef }: HeaderProps) {
         <h1 className="font-headline font-semibold text-white text-lg">
           Feple 대시보드
         </h1>
+        {isLoading && (
+          <span className="ml-4 text-white text-sm animate-pulse">
+            (음성 분석 진행 중...)
+          </span>
+        )}
       </div>
 
       {/* 중앙: 날짜 토글 (홈일 때만 표시) */}
