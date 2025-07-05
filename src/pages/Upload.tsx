@@ -177,7 +177,7 @@ export default function Upload() {
                       disabled={!selectedFile || isLoading}
                       className="w-full px-4 py-3 bg-uplus-magenta text-white font-bold rounded-lg disabled:bg-gray-300 hover:bg-opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uplus-magenta"
                     >
-                        {isLoading ? loadingStatus : "분석 시작"}
+                        {"분석 시작"}
                     </button>
                 </div>
             </form>
