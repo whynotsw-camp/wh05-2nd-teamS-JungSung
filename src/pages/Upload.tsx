@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { motion, Variants } from "framer-motion";
 import { ArrowUpTrayIcon, DocumentIcon } from "@heroicons/react/24/outline";
+import { createClient } from '@supabase/supabase-js';
 import { ResultsDisplay } from "../components/ResultsDisplay";
+
+// Supabase 클라이언트 초기화
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 const pageVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -12,25 +19,18 @@ const pageVariants: Variants = {
   },
 };
 
-// API 응답 결과의 타입을 정의
 interface AnalysisResult {
   metrics: { [key: string]: number | string };
-  transcript: { speaker: 'Agent' | 'Customer'; text: string; start_time: number; end_time: number }[];
+  transcript: { speaker: '상담사' | '고객'; text: string; start_time: number; end_time: number }[];
 }
 
-// Replicate의 Prediction 객체 타입을 정의
 interface Prediction {
     id: string;
     status: 'starting' | 'processing' | 'succeeded' | 'failed';
     output: AnalysisResult;
     error: string | null;
-    urls: {
-        get: string;
-        cancel: string;
-    };
 }
 
-// 실패 시 API 응답 타입을 정의
 interface ErrorResponse {
     detail: string;
 }
@@ -57,36 +57,46 @@ export default function Upload() {
     if (!selectedFile) return;
 
     setIsLoading(true);
-    setLoadingStatus("분석 시작 요청 중...");
+    setLoadingStatus("Supabase에 오디오 업로드 중...");
     setError(null);
     setAnalysisResult(null);
 
     try {
-      // 1. 분석 시작 요청 (접수증 받기)
-      const startResponse = await fetch("/api/predictions", {
-        method: "POST",
-        body: selectedFile,
-        headers: {
-          'Content-Type': selectedFile.type,
-        },
-      });
+      // 1. Supabase Storage에 파일 업로드
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `uploads/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('audio-bucket')
+        .upload(filePath, selectedFile);
+
+      if (uploadError) throw new Error(`Supabase 업로드 실패: ${uploadError.message}`);
+
+      const { data } = supabase.storage
+        .from('audio-bucket')
+        .getPublicUrl(filePath);
       
-      // --- 타입 에러 해결을 위한 수정 ---
+      const audioUrl = data.publicUrl;
+
+      // 2. /api/analyze-url 주소로 URL을 전달하여 분석 시작 요청
+      setLoadingStatus("AI 분석 시작 요청 중...");
+      const startResponse = await fetch("/api/analyze-url", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audioUrl }),
+      });
+
       if (!startResponse.ok) {
         const errorData: ErrorResponse = await startResponse.json();
         throw new Error(errorData.detail || "분석 시작에 실패했습니다.");
       }
-
       let prediction: Prediction = await startResponse.json();
-      // --------------------------------
 
-      // 2. 상태 확인 (폴링) 시작
+      // 3. 상태 확인 (폴링) 시작
       setLoadingStatus("AI 모델이 분석 중입니다...");
-      while (
-        prediction.status !== "succeeded" &&
-        prediction.status !== "failed"
-      ) {
-        await sleep(2500); // 2.5초마다 상태 확인
+      while (prediction.status !== "succeeded" && prediction.status !== "failed") {
+        await sleep(3000); // 3초마다 상태 확인
         const statusResponse = await fetch(`/api/predictions/${prediction.id}`);
         
         if (!statusResponse.ok) {
@@ -97,21 +107,19 @@ export default function Upload() {
       }
 
       if (prediction.status === "failed") {
-        throw new Error("AI 모델 분석에 실패했습니다: " + prediction.error);
+        throw new Error(`AI 분석 실패: ${prediction.error}`);
       }
-
-      // 3. 최종 결과 설정
+      
       setAnalysisResult(prediction.output);
 
     } catch (err) {
-        if (err instanceof Error) {
-            setError(err.message);
-        } else {
-            setError("알 수 없는 오류가 발생했습니다.");
-        }
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("알 수 없는 오류가 발생했습니다.");
+      }
     } finally {
       setIsLoading(false);
-      setLoadingStatus("분석 시작");
     }
   };
 
@@ -128,48 +136,48 @@ export default function Upload() {
 
       <div className="bg-white rounded-xl p-8 shadow-md">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="text-center">
-            <label
-              htmlFor="audio-upload"
-              className="cursor-pointer group inline-block"
-            >
-              <div className="w-24 h-24 mx-auto flex items-center justify-center rounded-full bg-gray-100 group-hover:bg-indigo-100 transition-colors">
-                <ArrowUpTrayIcon className="w-10 h-10 text-gray-400 group-hover:text-uplus-magenta" />
-              </div>
-              <p className="mt-2 font-medium text-uplus-navy">
-                분석할 파일을 선택하세요
-              </p>
-              <p className="text-xs text-gray-500">
-                (MP3, WAV 파일)
-              </p>
-            </label>
-            <input
-              id="audio-upload"
-              type="file"
-              className="sr-only"
-              accept="audio/*"
-              onChange={handleFileChange}
-            />
-          </div>
-
-          {selectedFile && (
-            <div className="flex items-center justify-center p-3 border-2 border-dashed rounded-lg">
-              <DocumentIcon className="w-6 h-6 text-gray-500 mr-2 flex-shrink-0" />
-              <span className="text-sm text-gray-700 truncate">
-                {selectedFile.name}
-              </span>
+        <div className="text-center">
+          <label
+            htmlFor="audio-upload"
+            className="cursor-pointer group inline-block"
+          >
+            <div className="w-24 h-24 mx-auto flex items-center justify-center rounded-full bg-gray-100 group-hover:bg-indigo-100 transition-colors">
+              <ArrowUpTrayIcon className="w-10 h-10 text-gray-400 group-hover:text-uplus-magenta" />
             </div>
-          )}
+            <p className="mt-2 font-medium text-uplus-navy">
+              분석할 파일을 선택하세요
+            </p>
+            <p className="text-xs text-gray-500">
+              (MP3, WAV 파일)
+            </p>
+          </label>
+          <input
+            id="audio-upload"
+            type="file"
+            className="sr-only"
+            accept="audio/*"
+            onChange={handleFileChange}
+          />
+        </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={!selectedFile || isLoading}
-              className="w-full px-4 py-3 bg-uplus-magenta text-white font-bold rounded-lg disabled:bg-gray-300 hover:bg-opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uplus-magenta"
-            >
-              {isLoading ? loadingStatus : "분석 시작"}
-            </button>
+        {selectedFile && (
+          <div className="flex items-center justify-center p-3 border-2 border-dashed rounded-lg">
+            <DocumentIcon className="w-6 h-6 text-gray-500 mr-2 flex-shrink-0" />
+            <span className="text-sm text-gray-700 truncate">
+              {selectedFile.name}
+            </span>
           </div>
+        )}
+
+        <div>
+          <button
+            type="submit"
+            disabled={!selectedFile || isLoading}
+            className="w-full px-4 py-3 bg-uplus-magenta text-white font-bold rounded-lg disabled:bg-gray-300 hover:bg-opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uplus-magenta"
+          >
+            {isLoading ? loadingStatus : "분석 시작"}
+          </button>
+        </div>
         </form>
       </div>
       
