@@ -22,7 +22,7 @@ export function Header({ onDateChange, onMenuToggle, printRef }: HeaderProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { isLoading } = useAnalysisResult();
+  const { isLoading } = useAnalysisResult(); // Get isLoading from context
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

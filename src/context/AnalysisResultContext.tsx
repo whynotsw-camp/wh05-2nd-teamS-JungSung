@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import axios from 'axios';
 
@@ -42,15 +43,19 @@ export const AnalysisResultProvider = ({ children }: { children: ReactNode }) =>
 
     try {
       // 백엔드에 분석 '시작' 요청. 백엔드는 즉시 predictionId를 반환해야 합니다.
-      // API 엔드포인트를 /api/predictions로 가정합니다. 실제 엔드포인트로 수정해야 합니다.
-      const response = await axios.post('/api/predictions', formData);
+      // /api/predictions 엔드포인트를 사용합니다.
+      const response = await axios.post('/api/predictions', file, {
+        headers: {
+          'Content-Type': file.type, // 파일의 MIME 타입을 정확히 전달
+        },
+      });
       if (response.data && response.data.id) {
         setPredictionId(response.data.id);
       } else {
-        throw new Error("Invalid response from server");
+        throw new Error("Invalid response from server: No prediction ID");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Replicate 예측 생성 오류:", err);
       setError('분석 시작 요청에 실패했습니다.');
       setIsLoading(false);
     }
