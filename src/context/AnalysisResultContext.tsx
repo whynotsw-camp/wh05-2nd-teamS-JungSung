@@ -1,8 +1,7 @@
 
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import axios from 'axios';
 
-// 다른 파일에서 이 타입을 사용할 수 있도록 export 합니다.
 export interface TranscriptItem {
   speaker: 'Agent' | 'Customer';
   text: string;
@@ -42,11 +41,11 @@ export const AnalysisResultProvider = ({ children }: { children: ReactNode }) =>
     formData.append('file', file);
 
     try {
-      // 백엔드에 분석 '시작' 요청. 백엔드는 즉시 predictionId를 반환해야 합니다.
-      // /api/predictions 엔드포인트를 사용합니다.
+      // Replicate에 있는 모델에게 분석 시작을 요청해줍니다. 모델은 곧바로 predictionId 반환
+      // /api/predictions 엔드포인트 사용
       const response = await axios.post('/api/predictions', file, {
         headers: {
-          'Content-Type': file.type, // 파일의 MIME 타입을 정확히 전달
+          'Content-Type': file.type, // 파일의 MIME 타입 전달
         },
       });
       if (response.data && response.data.id) {
@@ -105,9 +104,10 @@ export const AnalysisResultProvider = ({ children }: { children: ReactNode }) =>
   );
 };
 
-// 커스텀 훅
+// 커스텀 훅 생성
 export const useAnalysisResult = () => {
   const context = useContext(AnalysisResultContext);
+
   if (context === undefined) {
     throw new Error('useAnalysisResult must be used within a AnalysisResultProvider');
   }

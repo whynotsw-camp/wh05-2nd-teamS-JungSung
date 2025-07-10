@@ -32,11 +32,10 @@ export default function Upload() {
     await startAnalysis(selectedFile);
   };
 
-  // Show success message when analysis is complete
   useEffect(() => {
     if (analysisResult && !isLoading) {
       setShowSuccessMessage(true);
-      setTimeout(() => setShowSuccessMessage(false), 5000); // Hide after 5 seconds
+      setTimeout(() => setShowSuccessMessage(false), 5000);
     }
   }, [analysisResult, isLoading]);
 

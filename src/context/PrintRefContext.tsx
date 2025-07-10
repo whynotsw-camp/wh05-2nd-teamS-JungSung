@@ -1,4 +1,4 @@
-import React, { createContext, useRef, ReactNode, RefObject } from 'react';
+import { createContext, useRef, ReactNode, RefObject } from 'react';
 
 interface PrintRefContextType {
   printRef: RefObject<HTMLDivElement | null>;
@@ -6,11 +6,7 @@ interface PrintRefContextType {
 
 export const PrintRefContext = createContext<PrintRefContextType | undefined>(undefined);
 
-interface PrintRefProviderProps {
-  children: ReactNode;
-}
-
-export const PrintRefProvider: React.FC<PrintRefProviderProps> = ({ children }) => {
+export const PrintRefProvider = ({ children }: { children: ReactNode }) => {
   const printRef = useRef<HTMLDivElement>(null);
 
   return (
